@@ -35,6 +35,15 @@ const LoginForm = () => {
         </CardTitle>
       </CardHeader>
       <CardContent>
+        <div className="mb-6 text-sm text-gray-600 bg-gray-100 p-4 rounded-lg">
+          <p className="font-medium mb-2">Credenciales de acceso:</p>
+          <p>Administrador:</p>
+          <p className="ml-2">Email: admin@xmail.com</p>
+          <p className="ml-2">Contraseña: contraseña123</p>
+          <p className="mt-2">Cliente:</p>
+          <p className="ml-2">Email: cliente@xmail.com</p>
+          <p className="ml-2">Contraseña: cliente135</p>
+        </div>
         <form onSubmit={handleLogin} className="space-y-4">
           <div className="space-y-2">
             <div className="relative">

@@ -1,8 +1,18 @@
+import { useEffect } from "react";
 import DashboardMetrics from "@/components/DashboardMetrics";
 import ClientDashboard from "@/components/ClientDashboard";
+import { useNavigate } from "react-router-dom";
 
 const Dashboard = () => {
   const userRole = localStorage.getItem("userRole");
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    // Redirect customers trying to access /inventory to dashboard
+    if (userRole === "client" && window.location.pathname === "/inventory") {
+      navigate("/dashboard");
+    }
+  }, [userRole, navigate]);
 
   if (userRole === "client") {
     return <ClientDashboard />;

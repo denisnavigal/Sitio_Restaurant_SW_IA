@@ -106,22 +106,33 @@ export type Database = {
         Row: {
           date_marked_inactive: string | null
           id: number
+          product_id: number | null
           product_name: string
           reason_for_inactivity: string | null
         }
         Insert: {
           date_marked_inactive?: string | null
           id?: never
+          product_id?: number | null
           product_name: string
           reason_for_inactivity?: string | null
         }
         Update: {
           date_marked_inactive?: string | null
           id?: never
+          product_id?: number | null
           product_name?: string
           reason_for_inactivity?: string | null
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "inactive_products_product_id_fkey"
+            columns: ["product_id"]
+            isOneToOne: true
+            referencedRelation: "products"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       inventory: {
         Row: {
@@ -129,6 +140,7 @@ export type Database = {
           expiration_date: string | null
           id: number
           name: string
+          product_id: number | null
           quantity_available: number
           supplier_id: number | null
         }
@@ -137,6 +149,7 @@ export type Database = {
           expiration_date?: string | null
           id?: never
           name: string
+          product_id?: number | null
           quantity_available: number
           supplier_id?: number | null
         }
@@ -145,15 +158,62 @@ export type Database = {
           expiration_date?: string | null
           id?: never
           name?: string
+          product_id?: number | null
           quantity_available?: number
           supplier_id?: number | null
         }
         Relationships: [
           {
+            foreignKeyName: "inventory_product_id_fkey"
+            columns: ["product_id"]
+            isOneToOne: false
+            referencedRelation: "products"
+            referencedColumns: ["id"]
+          },
+          {
             foreignKeyName: "inventory_supplier_id_fkey"
             columns: ["supplier_id"]
             isOneToOne: false
             referencedRelation: "suppliers"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      inventory_actions: {
+        Row: {
+          action: string
+          admin_id: number
+          id: number
+          inventory_id: number
+          timestamp: string | null
+        }
+        Insert: {
+          action: string
+          admin_id: number
+          id?: never
+          inventory_id: number
+          timestamp?: string | null
+        }
+        Update: {
+          action?: string
+          admin_id?: number
+          id?: never
+          inventory_id?: number
+          timestamp?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "inventory_actions_admin_id_fkey"
+            columns: ["admin_id"]
+            isOneToOne: false
+            referencedRelation: "administrators"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "inventory_actions_inventory_id_fkey"
+            columns: ["inventory_id"]
+            isOneToOne: false
+            referencedRelation: "inventory"
             referencedColumns: ["id"]
           },
         ]
@@ -176,6 +236,30 @@ export type Database = {
           id?: never
           last_updated?: string | null
           order_count?: number
+        }
+        Relationships: []
+      }
+      products: {
+        Row: {
+          category: string | null
+          description: string | null
+          id: number
+          name: string
+          status: string
+        }
+        Insert: {
+          category?: string | null
+          description?: string | null
+          id?: never
+          name: string
+          status?: string
+        }
+        Update: {
+          category?: string | null
+          description?: string | null
+          id?: never
+          name?: string
+          status?: string
         }
         Relationships: []
       }

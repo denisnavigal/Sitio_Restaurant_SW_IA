@@ -1,56 +1,111 @@
+import { useQuery } from "@tanstack/react-query";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Star, ThumbsUp, ThumbsDown } from "lucide-react";
 import { toast } from "sonner";
+import { supabase } from "@/integrations/supabase/client";
 
-const dishes = [
-  {
-    id: 1,
-    name: "Tacos al Pastor",
-    description: "Tortillas de maíz con carne de cerdo marinada, piña y cilantro",
-    image: "https://images.unsplash.com/photo-1618160702438-9b02ab6515c9",
-    rating: 4.5,
-  },
-  {
-    id: 2,
-    name: "Enchiladas Verdes",
-    description: "Tortillas rellenas de pollo, bañadas en salsa verde con crema y queso",
-    image: "https://images.unsplash.com/photo-1485833077593-4278bba3f11f",
-    rating: 4.8,
-  },
-];
+interface DishRating {
+  id: number;
+  dish_name: string;
+  avg_rating: number;
+  comments: string[];
+}
+
+const fetchDishRatings = async (): Promise<DishRating[]> => {
+  const { data, error } = await supabase
+    .from('dish_ratings')
+    .select(`
+      id,
+      rating,
+      comment,
+      popular_dishes (
+        dish_name
+      )
+    `)
+    .not('comment', 'is', null);
+
+  if (error) throw error;
+
+  // Group and calculate average ratings
+  const ratingsMap = data.reduce((acc: { [key: string]: DishRating }, curr) => {
+    const dishName = curr.popular_dishes?.dish_name;
+    if (!dishName) return acc;
+
+    if (!acc[dishName]) {
+      acc[dishName] = {
+        id: curr.id,
+        dish_name: dishName,
+        avg_rating: curr.rating,
+        comments: curr.comment ? [curr.comment] : []
+      };
+    } else {
+      acc[dishName].avg_rating = (acc[dishName].avg_rating + curr.rating) / 2;
+      if (curr.comment) acc[dishName].comments.push(curr.comment);
+    }
+    return acc;
+  }, {});
+
+  return Object.values(ratingsMap);
+};
 
 const ClientDashboard = () => {
-  const handleRating = (dishId: number, isPositive: boolean) => {
-    toast.success(
-      `¡Gracias por tu ${isPositive ? "calificación positiva" : "feedback"}! Tu opinión nos ayuda a mejorar.`
-    );
+  const { data: ratings, isLoading, error } = useQuery({
+    queryKey: ['dishRatings'],
+    queryFn: fetchDishRatings,
+  });
+
+  const handleRating = async (dishId: number, isPositive: boolean) => {
+    try {
+      const { error } = await supabase
+        .from('dish_ratings')
+        .insert({
+          dish_id: dishId,
+          rating: isPositive ? 5 : 1,
+        });
+
+      if (error) throw error;
+      
+      toast.success(
+        `¡Gracias por tu ${isPositive ? "calificación positiva" : "feedback"}! Tu opinión nos ayuda a mejorar.`
+      );
+    } catch (err) {
+      toast.error("Hubo un error al enviar tu calificación. Por favor intenta de nuevo.");
+    }
   };
+
+  if (isLoading) {
+    return <div className="p-8">Cargando calificaciones...</div>;
+  }
+
+  if (error) {
+    return <div className="p-8 text-red-500">Error al cargar las calificaciones</div>;
+  }
 
   return (
     <div className="p-8 space-y-6">
       <h2 className="text-3xl font-bold text-primary">¡Bienvenido a Sabores Mexicanos!</h2>
-      <p className="text-lg text-gray-600">Califica nuestros platillos y ayúdanos a mejorar</p>
+      <p className="text-lg text-gray-600">Calificaciones y comentarios de nuestros platillos</p>
       
       <div className="grid gap-6 md:grid-cols-2">
-        {dishes.map((dish) => (
+        {ratings?.map((dish) => (
           <Card key={dish.id} className="overflow-hidden">
-            <img
-              src={dish.image}
-              alt={dish.name}
-              className="w-full h-48 object-cover"
-            />
             <CardHeader>
               <CardTitle className="flex justify-between items-center">
-                {dish.name}
+                {dish.dish_name}
                 <span className="flex items-center text-yellow-500">
                   <Star className="w-4 h-4 fill-current" />
-                  {dish.rating}
+                  {dish.avg_rating.toFixed(1)}
                 </span>
               </CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
-              <p className="text-gray-600">{dish.description}</p>
+              <div className="space-y-2">
+                <h4 className="font-semibold">Comentarios recientes:</h4>
+                {dish.comments.slice(0, 3).map((comment, idx) => (
+                  <p key={idx} className="text-sm text-gray-600 italic">"{comment}"</p>
+                ))}
+              </div>
               <div className="flex gap-2">
                 <Button
                   variant="outline"

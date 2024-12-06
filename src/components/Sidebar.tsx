@@ -11,21 +11,31 @@ import {
 import { useIsMobile } from "@/hooks/use-mobile";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 
-const menuItems = [
-  { icon: Home, label: "Dashboard", path: "/dashboard" },
-  { icon: Database, label: "Inventario", path: "/inventory" },
-  { icon: BarChart, label: "Reportes", path: "/reports" },
-  { icon: ShoppingCart, label: "Menú", path: "/menu" },
-];
+const getMenuItems = (userRole: string | null) => {
+  const baseItems = [
+    { icon: Home, label: "Dashboard", path: "/dashboard" },
+    { icon: BarChart, label: "Reportes", path: "/reports" },
+    { icon: ShoppingCart, label: "Menú", path: "/menu" },
+  ];
+
+  if (userRole !== "client") {
+    baseItems.splice(1, 0, { icon: Database, label: "Inventario", path: "/inventory" });
+  }
+
+  return baseItems;
+};
 
 const Sidebar = () => {
   const location = useLocation();
   const isMobile = useIsMobile();
+  const userRole = localStorage.getItem("userRole");
 
   const handleLogout = () => {
     localStorage.removeItem("userRole");
     window.location.href = "/";
   };
+
+  const menuItems = getMenuItems(userRole);
 
   const NavContent = () => (
     <>

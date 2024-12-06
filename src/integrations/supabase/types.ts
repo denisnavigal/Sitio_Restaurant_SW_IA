@@ -9,7 +9,200 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
-      [_ in never]: never
+      administrators: {
+        Row: {
+          email: string
+          id: number
+          name: string
+          password: string
+          role: string
+        }
+        Insert: {
+          email: string
+          id?: never
+          name: string
+          password: string
+          role: string
+        }
+        Update: {
+          email?: string
+          id?: never
+          name?: string
+          password?: string
+          role?: string
+        }
+        Relationships: []
+      }
+      customers: {
+        Row: {
+          email: string
+          id: number
+          name: string
+          password: string
+          phone: string | null
+          registration_date: string | null
+        }
+        Insert: {
+          email: string
+          id?: never
+          name: string
+          password: string
+          phone?: string | null
+          registration_date?: string | null
+        }
+        Update: {
+          email?: string
+          id?: never
+          name?: string
+          password?: string
+          phone?: string | null
+          registration_date?: string | null
+        }
+        Relationships: []
+      }
+      dish_ratings: {
+        Row: {
+          comment: string | null
+          customer_id: number | null
+          dish_id: number | null
+          id: number
+          rating: number
+          rating_date: string | null
+        }
+        Insert: {
+          comment?: string | null
+          customer_id?: number | null
+          dish_id?: number | null
+          id?: never
+          rating: number
+          rating_date?: string | null
+        }
+        Update: {
+          comment?: string | null
+          customer_id?: number | null
+          dish_id?: number | null
+          id?: never
+          rating?: number
+          rating_date?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "dish_ratings_customer_id_fkey"
+            columns: ["customer_id"]
+            isOneToOne: false
+            referencedRelation: "customers"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "dish_ratings_dish_id_fkey"
+            columns: ["dish_id"]
+            isOneToOne: false
+            referencedRelation: "popular_dishes"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      inactive_products: {
+        Row: {
+          date_marked_inactive: string | null
+          id: number
+          product_name: string
+          reason_for_inactivity: string | null
+        }
+        Insert: {
+          date_marked_inactive?: string | null
+          id?: never
+          product_name: string
+          reason_for_inactivity?: string | null
+        }
+        Update: {
+          date_marked_inactive?: string | null
+          id?: never
+          product_name?: string
+          reason_for_inactivity?: string | null
+        }
+        Relationships: []
+      }
+      inventory: {
+        Row: {
+          created_at: string | null
+          expiration_date: string | null
+          id: number
+          name: string
+          quantity_available: number
+          supplier_id: number | null
+        }
+        Insert: {
+          created_at?: string | null
+          expiration_date?: string | null
+          id?: never
+          name: string
+          quantity_available: number
+          supplier_id?: number | null
+        }
+        Update: {
+          created_at?: string | null
+          expiration_date?: string | null
+          id?: never
+          name?: string
+          quantity_available?: number
+          supplier_id?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "inventory_supplier_id_fkey"
+            columns: ["supplier_id"]
+            isOneToOne: false
+            referencedRelation: "suppliers"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      popular_dishes: {
+        Row: {
+          dish_name: string
+          id: number
+          last_updated: string | null
+          order_count: number
+        }
+        Insert: {
+          dish_name: string
+          id?: never
+          last_updated?: string | null
+          order_count?: number
+        }
+        Update: {
+          dish_name?: string
+          id?: never
+          last_updated?: string | null
+          order_count?: number
+        }
+        Relationships: []
+      }
+      suppliers: {
+        Row: {
+          address: string | null
+          email: string | null
+          id: number
+          name: string
+          phone: string | null
+        }
+        Insert: {
+          address?: string | null
+          email?: string | null
+          id?: never
+          name: string
+          phone?: string | null
+        }
+        Update: {
+          address?: string | null
+          email?: string | null
+          id?: never
+          name?: string
+          phone?: string | null
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never

@@ -41,7 +41,7 @@ const Sidebar = () => {
     <>
       <div className="space-y-4 py-4">
         <div className="px-3 py-2">
-          <h2 className="mb-2 px-4 text-lg font-semibold">Restaurante App</h2>
+          <h2 className="mb-2 px-4 text-lg font-semibold">Restaurante Chachos</h2>
           <div className="space-y-1">
             {menuItems.map((item) => {
               const Icon = item.icon;
